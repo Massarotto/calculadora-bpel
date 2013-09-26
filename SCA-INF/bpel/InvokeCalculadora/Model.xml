@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<process name="InvokeCalculadora" targetNamespace="http://xmlns.oracle.com/osbbook_ejb/CalculadoraProject/InvokeCalculadora" xmlns="http://schemas.xmlsoap.org/ws/2003/03/business-process/" xmlns:client="http://xmlns.oracle.com/osbbook_ejb/CalculadoraProject/InvokeCalculadora" xmlns:ora="http://schemas.oracle.com/xpath/extension" xmlns:bpelx="http://schemas.oracle.com/bpel/extension" xmlns:bpws="http://schemas.xmlsoap.org/ws/2003/03/business-process/" xmlns:xp20="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.Xpath20" xmlns:bpel2="http://docs.oasis-open.org/wsbpel/2.0/process/executable" xmlns:oraext="http://www.oracle.com/XSL/Transform/java/oracle.tip.pc.services.functions.ExtFunc" xmlns:ns1="http://www.example.org" xmlns:dvm="http://www.oracle.com/XSL/Transform/java/oracle.tip.dvm.LookupValue" xmlns:hwf="http://xmlns.oracle.com/bpel/workflow/xpath" xmlns:ids="http://xmlns.oracle.com/bpel/services/IdentityService/xpath" xmlns:bpm="http://xmlns.oracle.com/bpmn20/extensions" xmlns:xdk="http://schemas.oracle.com/bpel/extension/xpath/function/xdk" xmlns:xref="http://www.oracle.com/XSL/Transform/java/oracle.tip.xref.xpath.XRefXPathFunctions" xmlns:ldap="http://schemas.oracle.com/xpath/extension/ldap" xmlns:ns2="http://impl.massarotto.com.br/" xmlns:ns3="http://massarotto.com.br/" xmlns:task="http://xmlns.oracle.com/bpel/workflow/task" xmlns:taskservice="http://xmlns.oracle.com/bpel/workflow/taskService" xmlns:wfcommon="http://xmlns.oracle.com/bpel/workflow/common" xmlns:wf="http://schemas.oracle.com/bpel/extensions/workflow" xmlns:ns4="http://xmlns.oracle.com/bpel/workflow/TaskEvidenceService" id="BpPrc0">
+
+    <!-- 
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        PARTNERLINKS                                                      
+        List of services participating in this BPEL process               
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    --> 
+  <partnerLinks>
+    <!-- 
+      The 'client' role represents the requester of this service. It is 
+      used for callback. The location and correlation information associated
+      with the client role are automatically set using WS-Addressing.
+    -->
+    <partnerLink name="invokecalculadora_client" partnerLinkType="client:InvokeCalculadora" myRole="InvokeCalculadoraProvider"/>
+    <partnerLink name="calculadorPL" partnerLinkType="ns2:Calculadora_PL" partnerRole="Calculadora_Role"/>
+    <partnerLink name="AprovaResultado.TaskService_1" partnerLinkType="taskservice:TaskService" partnerRole="TaskService" myRole="TaskServiceCallbackListener"/>
+  </partnerLinks>
+
+  <!-- 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      VARIABLES                                                        
+      List of messages and XML documents used within this BPEL process 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  -->
+  <variables>
+    <!-- Reference to the message passed as input during initiation -->
+    <variable name="inputVariable" messageType="client:InvokeCalculadoraRequestMessage"/>
+
+    <!-- Reference to the message that will be returned to the requester-->
+    <variable name="outputVariable" messageType="client:InvokeCalculadoraResponseMessage"/>
+    <variable name="Invoke1_somar_InputVariable" messageType="ns3:somar"/>
+    <variable name="Invoke1_somar_OutputVariable" messageType="ns3:somarResponse"/>
+    <variable name="subtrai_subtrair_InputVariable" messageType="ns3:subtrair"/>
+    <variable name="subtrai_subtrair_OutputVariable" messageType="ns3:subtrairResponse"/>
+    <variable name="AprovaResultado1_globalVariable" messageType="taskservice:taskMessage"/>
+  </variables>
+
+  <!-- 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+     ORCHESTRATION LOGIC                                               
+     Set of activities coordinating the flow of messages across the    
+     services integrated within this business process                  
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  -->
+  <sequence name="main" id="BpSeq0">
+
+    <!-- Receive input from requestor. (Note: This maps to operation defined in InvokeCalculadora.wsdl) -->
+    <receive name="receiveInput" partnerLink="invokecalculadora_client" portType="client:InvokeCalculadora" operation="process" variable="inputVariable" createInstance="yes" id="BpRcv0"/>
+    <switch name="Switch1" id="BpSwt0">
+      <case condition="bpws:getVariableData('inputVariable','payload','/ns1:calculadoraReq/ns1:operacao') = 'SUBTRAI'">
+        <bpelx:annotation>
+          <bpelx:general>
+            <bpelx:property name="userLabel">
+              <![CDATA[subtrai]]>
+            </bpelx:property>
+          </bpelx:general>
+        </bpelx:annotation>
+        <sequence name="Sequence2" id="BpSeq1">
+          <assign name="AssignSubtrai" id="BpAss0">
+            <copy>
+              <from variable="inputVariable" part="payload" query="/ns1:calculadoraReq/ns1:numero1"/>
+              <to variable="subtrai_subtrair_InputVariable" part="parameters" query="/ns3:subtrair/arg0"/>
+            </copy>
+            <copy>
+              <from variable="inputVariable" part="payload" query="/ns1:calculadoraReq/ns1:numero2"/>
+              <to variable="subtrai_subtrair_InputVariable" part="parameters" query="/ns3:subtrair/arg1"/>
+            </copy>
+          </assign>
+          <invoke name="subtrai" bpelx:invokeAsDetail="no" inputVariable="subtrai_subtrair_InputVariable" outputVariable="subtrai_subtrair_OutputVariable" partnerLink="calculadorPL" portType="ns3:Calculadora" operation="subtrair" id="BpInv0"/>
+          <assign name="AssignSubtrai" id="BpAss1">
+            <copy>
+              <from variable="subtrai_subtrair_OutputVariable" part="parameters" query="/ns3:subtrairResponse/return"/>
+              <to variable="outputVariable" part="payload" query="/ns1:calculadoraResp/ns1:total"/>
+            </copy>
+          </assign>
+        </sequence>
+      </case>
+      <case condition="bpws:getVariableData('inputVariable','payload','/ns1:calculadoraReq/ns1:operacao') = 'SOMA'">
+        <bpelx:annotation>
+          <bpelx:general>
+            <bpelx:property name="userLabel">
+              <![CDATA[soma]]>
+            </bpelx:property>
+          </bpelx:general>
+        </bpelx:annotation>
+        <sequence name="Sequence1" id="BpSeq2">
+          <assign name="AssignSoma" id="BpAss2">
+            <copy>
+              <from variable="inputVariable" part="payload" query="/ns1:calculadoraReq/ns1:numero1"/>
+              <to variable="Invoke1_somar_InputVariable" part="parameters" query="/ns3:somar/arg0"/>
+            </copy>
+            <copy>
+              <from variable="inputVariable" part="payload" query="/ns1:calculadoraReq/ns1:numero2"/>
+              <to variable="Invoke1_somar_InputVariable" part="parameters" query="/ns3:somar/arg1"/>
+            </copy>
+          </assign>
+          <invoke name="soma" bpelx:invokeAsDetail="no" inputVariable="Invoke1_somar_InputVariable" outputVariable="Invoke1_somar_OutputVariable" partnerLink="calculadorPL" portType="ns3:Calculadora" operation="somar" id="BpInv1"/>
+          <assign name="AssignSoma" id="BpAss3">
+            <copy>
+              <from variable="Invoke1_somar_OutputVariable" part="parameters" query="/ns3:somarResponse/return"/>
+              <to variable="outputVariable" part="payload" query="/ns1:calculadoraResp/ns1:total"/>
+            </copy>
+          </assign>
+        </sequence>
+      </case>
+      <otherwise/>
+    </switch>
+    <switch name="Switch2" id="BpSwt1">
+      <case condition="bpws:getVariableData('outputVariable','payload','/ns1:calculadoraResp/ns1:total')  >= 100">
+        <bpelx:annotation>
+          <bpelx:general>
+            <bpelx:property name="userLabel">
+              <![CDATA[>= 100]]>
+            </bpelx:property>
+          </bpelx:general>
+        </bpelx:annotation>
+        <sequence id="BpSeq3">
+          <scope name="AprovaResultado1" xmlns:wf="http://schemas.oracle.com/bpel/extensions/workflow" wf:key="AprovaResultado1_globalVariable" id="BpScp0">
+            <bpelx:annotation>
+              <bpelx:pattern patternName="bpelx:workflow"/>
+            </bpelx:annotation>
+            <variables>
+              <variable name="initiateTaskInput" messageType="taskservice:initiateTaskMessage"/>
+              <variable name="initiateTaskResponseMessage" messageType="taskservice:initiateTaskResponseMessage"/>
+            </variables>
+            <sequence id="BpSeq4">
+              <assign name="AprovaResultado1_AssignTaskAttributes" id="BpAss4">
+                <copy>
+                  <from expression="number(3)"/>
+                  <to variable="initiateTaskInput" part="payload" query="/taskservice:initiateTask/task:task/task:priority"/>
+                </copy>
+                <copy>
+                  <from><payload xmlns="http://xmlns.oracle.com/bpel/workflow/task">
+ <Resultado xmlns="http://xmlns.oracle.com/bpel/workflow/task"/>
+</payload></from>
+                  <to variable="initiateTaskInput" part="payload" query="/taskservice:initiateTask/task:task/task:payload"/>
+                </copy>
+                <copy>
+                  <from variable="outputVariable" part="payload" query="/ns1:calculadoraResp/ns1:total"/>
+                  <to variable="initiateTaskInput" part="payload" query="/taskservice:initiateTask/task:task/task:payload/task:Resultado"/>
+                </copy>
+              </assign>
+              <invoke name="initiateTask_AprovaResultado1" partnerLink="AprovaResultado.TaskService_1" operation="initiateTask" portType="taskservice:TaskService" inputVariable="initiateTaskInput" outputVariable="initiateTaskResponseMessage" id="BpInv2"/>
+              <receive name="receiveCompletedTask_AprovaResultado1" partnerLink="AprovaResultado.TaskService_1" portType="taskservice:TaskServiceCallback" operation="onTaskCompleted" variable="AprovaResultado1_globalVariable" createInstance="no" id="BpRcv1"/>
+            </sequence>
+          </scope>
+          <switch name="taskSwitch" id="BpSwt2">
+            <case condition="$AprovaResultado1_globalVariable.payload/task:systemAttributes/task:outcome = 'REJECT'">
+              <bpelx:annotation>
+                <bpelx:pattern>Task outcome is REJECT</bpelx:pattern>
+                <bpelx:general>
+                  <bpelx:property name="userLabel">
+                    <![CDATA[Task outcome is REJECT]]>
+                  </bpelx:property>
+                </bpelx:general>
+              </bpelx:annotation>
+              <sequence id="BpSeq5">
+                <assign id="BpAss5">
+                  <copy>
+                    <from expression="0"/>
+                    <to variable="outputVariable" part="payload" query="/ns1:calculadoraResp/ns1:total"/>
+                  </copy>
+                </assign>
+              </sequence>
+            </case>
+            <case condition="$AprovaResultado1_globalVariable.payload/task:systemAttributes/task:outcome = 'APPROVE'">
+              <bpelx:annotation>
+                <bpelx:pattern>Task outcome is APPROVE</bpelx:pattern>
+                <bpelx:general>
+                  <bpelx:property name="userLabel">
+                    <![CDATA[Task outcome is APPROVE]]>
+                  </bpelx:property>
+                </bpelx:general>
+              </bpelx:annotation>
+              <sequence id="BpSeq6">
+                <assign id="BpAss6">
+                  <copy>
+                    <from variable="AprovaResultado1_globalVariable" part="payload" query="/task:task/task:payload/task:Resultado"/>
+                    <to variable="outputVariable" part="payload" query="/ns1:calculadoraResp/ns1:total"/>
+                  </copy>
+                </assign>
+              </sequence>
+            </case>
+            <otherwise>
+              <sequence id="BpSeq7">
+                <assign id="BpAss7">
+                  <copy>
+                    <from variable="AprovaResultado1_globalVariable" part="payload" query="/task:task/task:payload/task:Resultado"/>
+                    <to variable="outputVariable" part="payload" query="/ns1:calculadoraResp/ns1:total"/>
+                  </copy>
+                </assign>
+              </sequence>
+            </otherwise>
+          </switch>
+        </sequence>
+      </case>
+      <otherwise/>
+    </switch>
+    <!-- Generate reply to synchronous request -->
+    <reply name="replyOutput" partnerLink="invokecalculadora_client" portType="client:InvokeCalculadora" operation="process" variable="outputVariable" id="BpRpl0"/>
+  </sequence>
+</process><!--
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  Oracle JDeveloper BPEL Designer 
+  
+  Created: Wed Sep 25 17:22:36 BRT 2013
+  Author:  massarotto
+  Type: BPEL 1.1 Process
+  Purpose: Synchronous BPEL Process
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+-->

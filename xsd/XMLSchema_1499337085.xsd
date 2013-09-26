@@ -1,0 +1,31 @@
+<?xml version= '1.0' encoding= 'UTF-8' ?>
+<xs:schema xmlns:tns="http://massarotto.com.br/" xmlns:xs="http://www.w3.org/2001/XMLSchema" version="1.0"
+     targetNamespace="http://massarotto.com.br/">
+    <xs:element name="somar" type="tns:somar"/>
+    <xs:element name="somarResponse" type="tns:somarResponse"/>
+    <xs:element name="subtrair" type="tns:subtrair"/>
+    <xs:element name="subtrairResponse" type="tns:subtrairResponse"/>
+    <xs:complexType name="subtrair">
+        <xs:sequence>
+            <xs:element name="arg0" type="xs:int"/>
+            <xs:element name="arg1" type="xs:int"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="subtrairResponse">
+        <xs:sequence>
+            <xs:element name="return" type="xs:int"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="somar">
+        <xs:sequence>
+            <xs:element name="arg0" type="xs:int"/>
+            <xs:element name="arg1" type="xs:int"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="somarResponse">
+        <xs:sequence>
+            <xs:element name="return" type="xs:int"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>
+<!-- Published by JAX-WS RI at http://jax-ws.dev.java.net. RI's version is JAX-WS RI 2.1.6 in JDK 6. -->

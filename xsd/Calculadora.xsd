@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns="http://www.example.org"
+            targetNamespace="http://www.example.org"
+            elementFormDefault="qualified"
+            xmlns:xml="http://www.w3.org/XML/1998/namespace">
+  <xsd:element name="calculadoraReq">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="numero1" type="xsd:int"/>
+        <xsd:element name="numero2" type="xsd:int"/>
+        <xsd:element name="operacao" type="xsd:string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="calculadoraResp">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="total" type="xsd:int"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+</xsd:schema>

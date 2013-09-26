@@ -1,0 +1,24 @@
+Sep 26, 2013 2:57:15 PM oracle.mds
+NOTIFICATION: PManager instance is created without multitenancy support as JVM flag "oracle.multitenant.enabled" is not set to enable multitenancy support.
+Sep 26, 2013 2:57:16 PM oracle.security.jps.internal.config.xml.XmlConfigurationFactory initDefaultConfiguration
+SEVERE: java.io.FileNotFoundException: ./config/jps-config.xml (No such file or directory)
+Sep 26, 2013 2:57:16 PM oracle.mds
+NOTIFICATION: Auditing is disabled for component MDS.
+Sep 26, 2013 2:57:16 PM oracle.fabric.common.wsdl.SchemaManager isIncrementalBuildSupported
+INFO: XMLSchema incremental build enabled.
+Sep 26, 2013 2:57:16 PM com.collaxa.cube.CubeLogger info
+INFO: validating "InvokeCalculadora.bpel" ...
+Sep 26, 2013 2:57:17 PM oracle.integration.platform.blocks.FabricConfigManager <clinit>
+WARNING: JRF is unable to determine the current application server platform.
+Sep 26, 2013 2:57:17 PM oracle.integration.platform.blocks.WLSPlatformConfigurationProvider <clinit>
+WARNING: JRF is unable to determine the current application server platform.
+Sep 26, 2013 2:57:17 PM com.collaxa.cube.CubeLogger info
+INFO: Composed "InvokeCalculadora" in 56.5 milliseconds [nodes 36=1+35, 636.7 nodes/sec]
+Sep 26, 2013 2:57:18 PM com.collaxa.cube.CubeLogger info
+INFO: Compiled "InvokeCalculadora" in 884.3 milliseconds
+Sep 26, 2013 2:57:18 PM com.collaxa.cube.CubeLogger info
+INFO: Gathered 5 files in 0.2 milliseconds
+
+Sep 26, 2013 2:57:18 PM com.collaxa.cube.CubeLogger info
+INFO: Packaged "InvokeCalculadora" in 4.1 milliseconds
+
